@@ -1,8 +1,8 @@
-import 'package:budgetly/bank.dart';
-import 'package:budgetly/my%20goal.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-class newgoal3 extends StatelessWidget {
+import 'package:budgetly/bank.dart';
+import 'my goal.dart';
+
+class NewGoal3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,8 +12,8 @@ class newgoal3 extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Transform.scale(
-              scale: 0.8, // Adjust the scale factor as needed
-              child: Image.asset('images/goal1.png'), // Replace with your image asset
+              scale: 0.8,
+              child: Image.asset('images/goal1.png'),
             ),
             Text(
               'Congratulations!',
@@ -38,31 +38,30 @@ class newgoal3 extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => bank(),
+                    builder: (context) => BankSynchronizationScreen(),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green, // background (button) color
-                onPrimary: Colors.white, // foreground (text) color
-                padding: EdgeInsets.symmetric(horizontal: 120, vertical: 20), // width and height
+                foregroundColor: Colors.white, backgroundColor: Colors.green,
+                padding: EdgeInsets.symmetric(horizontal: 120, vertical: 20),
               ),
             ),
-            SizedBox(height: 25), // Add a SizedBox between the two buttons
+            SizedBox(height: 25),
             OutlinedButton(
               child: Text('View my goal'),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => mygoal(),
+                    builder: (context) => MyGoal(),
                   ),
                 );
               },
               style: OutlinedButton.styleFrom(
-                primary: Colors.black, // text color
-                side: BorderSide(color: Colors.black), // border color
-                padding: EdgeInsets.symmetric(horizontal: 120, vertical: 20), // width and height
+                primary: Colors.black,
+                side: BorderSide(color: Colors.black),
+                padding: EdgeInsets.symmetric(horizontal: 120, vertical: 20),
               ),
             ),
           ],

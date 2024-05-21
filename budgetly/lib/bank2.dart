@@ -1,6 +1,5 @@
 import 'package:budgetly/bank3.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 class bank2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

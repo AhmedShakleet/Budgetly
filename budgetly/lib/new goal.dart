@@ -1,7 +1,11 @@
-import 'package:budgetly/new%20goal2.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-class newgoal extends StatelessWidget {
+import 'package:image_picker/image_picker.dart';
+import 'new goal2.dart';
+
+class NewGoal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,20 +26,29 @@ class NewGoalPage extends StatefulWidget {
 class _NewGoalPageState extends State<NewGoalPage> {
   final TextEditingController _goalNameController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-  DateTime selectedDate = DateTime.now();
+  DateTime? selectedDate;
+  XFile? _image;
+  final ImagePicker _picker = ImagePicker();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
     );
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
       });
     }
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      _image = image;
+    });
   }
 
   @override
@@ -45,43 +58,38 @@ class _NewGoalPageState extends State<NewGoalPage> {
     super.dispose();
   }
 
+  bool get _isNextButtonEnabled {
+    return _goalNameController.text.isNotEmpty && selectedDate != null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.close),
-          onPressed: () {
-            // Handle close button
-          },
+          onPressed: () => Navigator.pop(context),
         ),
-        title: Text('New goal'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () {
-              // Handle save goal
-            },
-          ),
-        ],
+        title: Text('New Goal'),
+        backgroundColor: Colors.green, // Set the color to green
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: <Widget>[
             InkWell(
-              onTap: () {
-                // Handle add photo
-              },
+              onTap: _pickImage,
               child: CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.green,
-                child: Icon(Icons.camera_alt, color: Colors.white),
+                backgroundImage: _image != null ? FileImage(File(_image!.path)) : null,
+                child: _image == null ? Icon(Icons.camera_alt, color: Colors.white) : null,
               ),
             ),
             TextField(
               controller: _goalNameController,
-              decoration: InputDecoration(labelText: 'Goal name'),
+              decoration: InputDecoration(labelText: 'Goal Name'),
+              onChanged: (value) => setState(() {}),
             ),
             TextField(
               controller: _noteController,
@@ -89,36 +97,43 @@ class _NewGoalPageState extends State<NewGoalPage> {
               maxLines: 3,
             ),
             ListTile(
-              title: Text('Starting on:'),
-              subtitle: Text(DateFormat('dd MMM yyyy').format(selectedDate)),
+              title: Text('Start Date:'),
+              subtitle: Text(selectedDate != null ? DateFormat('dd MMM yyyy').format(selectedDate!) : 'No date selected'),
               trailing: Icon(Icons.calendar_today),
               onTap: () => _selectDate(context),
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
+              onPressed: _isNextButtonEnabled
+                  ? () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => newgoal2(),
+                    builder: (context) => NewGoal2(
+                      goalName: _goalNameController.text,
+                      note: _noteController.text,
+                      targetDate: selectedDate!,
+                    ),
                   ),
                 );
-              },
+              }
+                  : null,
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.green),
+                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.grey; // Disabled color
+                    }
+                    return Colors.green; // Default color when enabled
+                  },
+                ),
                 padding: MaterialStateProperty.all(
                   EdgeInsets.symmetric(horizontal: 120, vertical: 20),
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(width: 8),
-                  Text(
-                    "Next",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+              child: Text(
+                "Next",
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ],

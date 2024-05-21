@@ -1,7 +1,7 @@
-import 'package:budgetly/bank.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-class mygoal extends StatelessWidget {
+
+class MyGoal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,22 +14,91 @@ class mygoal extends StatelessWidget {
   }
 }
 
-class GoalDetailScreen extends StatelessWidget {
+class Transaction {
+  double amount;
+  DateTime date;
+
+  Transaction({required this.amount, required this.date});
+}
+
+class GoalDetailScreen extends StatefulWidget {
+  @override
+  _GoalDetailScreenState createState() => _GoalDetailScreenState();
+}
+
+class _GoalDetailScreenState extends State<GoalDetailScreen> {
+  double accumulated = 0;
+  final double goalAmount = 10000;
+  List<Transaction> transactions = [];
+  final TextEditingController _amountController = TextEditingController();
+
+  void addTransaction(double amount) {
+    if (amount > 0 && (accumulated + amount) <= goalAmount) {
+      setState(() {
+        accumulated += amount;
+        transactions.add(Transaction(amount: amount, date: DateTime.now()));
+      });
+    }
+  }
+
+  void deleteTransaction(int index) {
+    setState(() {
+      accumulated -= transactions[index].amount;
+      transactions.removeAt(index);
+    });
+  }
+
+  void editTransaction(int index) async {
+    TextEditingController editController = TextEditingController(text: transactions[index].amount.toString());
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Edit Transaction"),
+          content: TextField(
+            controller: editController,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: "Enter new amount",
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Save"),
+              onPressed: () {
+                double? newAmount = double.tryParse(editController.text);
+                if (newAmount != null && newAmount > 0 && (accumulated - transactions[index].amount + newAmount) <= goalAmount) {
+                  setState(() {
+                    accumulated = accumulated - transactions[index].amount + newAmount;
+                    transactions[index].amount = newAmount;
+                    transactions[index].date = DateTime.now(); // Optionally update the date
+                  });
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {}, // Handle back button
+          onPressed: () => Navigator.pop(context),
         ),
-        title: Text('My goal'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {}, // Handle edit button
-          ),
-        ],
+        title: Text('My Goal'),
+        backgroundColor: Colors.green,
       ),
       body: ListView(
         children: [
@@ -41,47 +110,71 @@ class GoalDetailScreen extends StatelessWidget {
                 Text('Buy Jackson PRO', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 Text('29 Aug 2023', style: TextStyle(color: Colors.grey)),
                 LinearProgressIndicator(
-                  value: 0.57, // Current progress
+                  value: accumulated / goalAmount,
                   backgroundColor: Colors.grey[300],
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                 ),
-                Text('Total amount: \$1,200', style: TextStyle(fontSize: 16)),
-                Text('Accumulated: \$683 / 57%', style: TextStyle(fontSize: 16)),
-                Text('Left: \$517 / 43%', style: TextStyle(fontSize: 16)),
+                Text('Total amount: \$${goalAmount.toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
+                Text('Accumulated: \$${accumulated.toStringAsFixed(2)} / ${((accumulated / goalAmount) * 100).toStringAsFixed(2)}%', style: TextStyle(fontSize: 16)),
+                Text('Left: \$${(goalAmount - accumulated).toStringAsFixed(2)} / ${((1 - accumulated / goalAmount) * 100).toStringAsFixed(2)}%', style: TextStyle(fontSize: 16)),
                 SizedBox(height: 24),
-                Text('Note', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text('This instrument opens up new horizons in playing possibilities', style: TextStyle(fontSize: 16)),
-                SizedBox(height: 24),
-                ElevatedButton.icon(
-                  icon: Icon(Icons.add), // Replace with custom icon
-                  label: Text('Add money'),
-                  onPressed: () {}, // Handle add money
+                TextField(
+                  controller: _amountController,
+                  decoration: InputDecoration(
+                    labelText: 'Add money',
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        double? amount = double.tryParse(_amountController.text);
+                        if (amount != null) {
+                          addTransaction(amount);
+                        }
+                      },
+                    ),
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
                 SizedBox(height: 24),
                 Text('Transaction history', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                TransactionTile(),
-                TransactionTile(),
-                TransactionTile(), // Add more transaction tiles as needed
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: transactions.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.green,
+                        child: Icon(Icons.attach_money),
+                      ),
+                      title: Text('\$${transactions[index].amount.toStringAsFixed(2)}'),
+                      subtitle: Text('Added on ${DateFormat('dd MMM yyyy').format(transactions[index].date)}'),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'Edit') {
+                            editTransaction(index);
+                          } else if (value == 'Delete') {
+                            deleteTransaction(index);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'Edit',
+                            child: Text('Edit'),
+                          ),
+                          PopupMenuItem(
+                            value: 'Delete',
+                            child: Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class TransactionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.green,
-        child: Icon(Icons.attach_money), // Replace with the appropriate icon
-      ),
-      title: Text('Cash'),
-      subtitle: Text('\$145.00 - 2 day left'),
-      trailing: Icon(Icons.more_vert), // For transaction options
     );
   }
 }

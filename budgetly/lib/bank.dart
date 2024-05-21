@@ -1,6 +1,5 @@
 import 'package:budgetly/bank2.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 class bank extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -66,8 +65,7 @@ class BankSynchronizationScreen extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green, // background (button) color
-                onPrimary: Colors.white, // foreground (text) color
+                foregroundColor: Colors.white, backgroundColor: Colors.green, // foreground (text) color
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // width and height
               ),
             ),
@@ -78,8 +76,7 @@ class BankSynchronizationScreen extends StatelessWidget {
                 // Handle navigation
               },
               style: OutlinedButton.styleFrom(
-                primary: Colors.black, // text color
-                side: BorderSide(color: Colors.black), // border color
+                foregroundColor: Colors.black, side: BorderSide(color: Colors.black), // border color
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // width and height
               ),
             ),

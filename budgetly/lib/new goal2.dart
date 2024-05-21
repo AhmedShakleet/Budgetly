@@ -1,7 +1,14 @@
-import 'package:budgetly/new%20goal3.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-class newgoal2 extends StatelessWidget {
+import 'new goal3.dart'; // تأكد من صحة المسار
+
+class NewGoal2 extends StatelessWidget {
+  final String goalName;
+  final String note;
+  final DateTime targetDate;
+
+  NewGoal2({required this.goalName, required this.note, required this.targetDate});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -9,20 +16,27 @@ class newgoal2 extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: NewGoalScreen(),
+      home: NewGoalScreen(goalName: goalName, note: note, targetDate: targetDate),
     );
   }
 }
 
 class NewGoalScreen extends StatefulWidget {
+  final String goalName;
+  final String note;
+  final DateTime targetDate;
+
+  NewGoalScreen({required this.goalName, required this.note, required this.targetDate});
+
   @override
   _NewGoalScreenState createState() => _NewGoalScreenState();
 }
 
 class _NewGoalScreenState extends State<NewGoalScreen> {
-  double _currentSliderValue = 4000;
+  double _currentSliderValue = 0;
   bool _receiveAlerts = false;
   DateTime _selectedDate = DateTime.now();
+  TextEditingController _amountController = TextEditingController();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -38,16 +52,17 @@ class _NewGoalScreenState extends State<NewGoalScreen> {
     }
   }
 
+  bool get _isNextButtonEnabled => _amountController.text.isNotEmpty && double.tryParse(_amountController.text) != null && double.tryParse(_amountController.text)! >= 0 && double.tryParse(_amountController.text)! <= 999999999999;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New goal'),
+        title: Text('New Goal'),
+        backgroundColor: Colors.green,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            // Handle back button press
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Padding(
@@ -56,45 +71,36 @@ class _NewGoalScreenState extends State<NewGoalScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              'How much do you want to save for this goal',
+              'How much do you want to save for this goal?',
               style: TextStyle(fontSize: 18),
             ),
-            Slider(
-              value: _currentSliderValue,
-              min: 0,
-              max: 10000,
-              divisions: 100,
-              label: _currentSliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _currentSliderValue = value;
-                });
-              },
-              activeColor: Colors.green, // Change slider color when active
+            TextField(
+              controller: _amountController,
+              decoration: InputDecoration(labelText: "Enter amount (up to 999,999,999,999)"),
+              keyboardType: TextInputType.numberWithOptions(decimal: false),
+              onChanged: (value) => setState(() {}),
             ),
             Text(
-              '\$${_currentSliderValue.toStringAsFixed(2)}',
+              '\$${_amountController.text}',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
-            // Add Frequency buttons here
-            // Add Date selection here
             ListTile(
-              title: Text('When do you want to achieve your goal?'),
+              title: Text('Achievement Date:'),
               subtitle: Text(DateFormat('dd MMM yyyy').format(_selectedDate)),
               trailing: Icon(Icons.calendar_today),
               onTap: () => _selectDate(context),
             ),
             SwitchListTile(
-              title: Text('Receive alerts'),
-              subtitle: Text('We will notify you when you need to save for this goal'),
+              title: Text('Receive Alerts'),
+              subtitle: Text('We will notify you when you need to save for this goal.'),
               value: _receiveAlerts,
               onChanged: (bool value) {
                 setState(() {
                   _receiveAlerts = value;
                 });
               },
-              activeColor: Colors.green, // Change switch color when active
+              activeColor: Colors.green,
             ),
             Spacer(),
             Align(
@@ -102,16 +108,18 @@ class _NewGoalScreenState extends State<NewGoalScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 250.0),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: _isNextButtonEnabled
+                      ? () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => newgoal3(),
+                        builder: (context) => NewGoal3(),
                       ),
-                    );// Handle next action
-                  },
+                    );
+                  }
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
+                    backgroundColor: Colors.green,
                     padding: EdgeInsets.symmetric(horizontal: 140, vertical: 20),
                   ),
                   child: Text(

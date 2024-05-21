@@ -1,8 +1,6 @@
-import 'package:budgetly/log%20in.dart';
+import 'package:budgetly/Log%20in.dart';
+
 import 'package:flutter/material.dart';
-import 'package:budgetly/Password Reset Screen.dart';
-import 'package:budgetly/Sign-Up Screen.dart';
-import 'package:budgetly/Sign-in Successful Screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +12,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'get started',
+      title: 'Get Started',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.green,
       ),
       home: WelcomeScreen(),
     );
@@ -57,28 +54,31 @@ class WelcomeScreen extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              margin: EdgeInsets.only(bottom: 20),
+              margin: EdgeInsets.only(bottom: 30),
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => login()),
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
                   );
                 },
-                style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.green.shade700),
-                  padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min ,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'Get Started',
-                      style: TextStyle(color: Colors.white), // Text color
+                      style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
-                    SizedBox(width: 40,),
-                    Icon(Icons.arrow_forward,
-                        color: Colors.white), // Arrow icon
+                    SizedBox(width: 10),
+                    Icon(Icons.arrow_forward, color: Colors.white),
+
                   ],
                 ),
               ),
